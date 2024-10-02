@@ -286,7 +286,7 @@ head(baker_winner, 5)
 
 ```
 
-## 5. Import Viewership Data
+## Import Viewership Data
 
 
 ```{r}
