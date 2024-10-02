@@ -3,29 +3,18 @@ title: "hmw2_problems"
 author: "shuai yuan"
 date: "2024-09-29"
 output: github_document
-
-
 ---
-getwd() 
-#initialization
-```{r setup, include=FALSE}
 
+
+```{r setup, include=FALSE}
 library(tidyverse)
 library(readxl)
 library(janitor)
 
-# Set the working directory globally for the entire RMarkdown document, please change to your file path when trying
-
-knitr::opts_knit$set(root.dir = "/Users/mac/Desktop/data hmw2_dataset")
 
 ```
-setwd("/Users/mac/Desktop/data hmw2_dataset")
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 
 ## Problem 1
@@ -33,60 +22,63 @@ Import subway E&T data and clean data
 
 list.files()
 
-```{r cars}
-# Load the dataset
-##subway_data <- read_csv("NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
+## Load and Clean Data
 
+```{r }
+# List available files in the working directory
+list.files()
+
+# Load the dataset
 subway_data <- read_csv("NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
 
-
-# Select relevant columns
+# Select relevant columns and clean data
 cleaned_subway_data <- subway_data %>%
   select(Line, `Station Name`, `Station Latitude`, `Station Longitude`, 
          Route1, Route2, Route3, Route4, Route5, 
-         Entry, Vending, `Entrance Type`, ADA)
-
-# Convert 'Entry' from 'YES'/'NO' to logical TRUE/FALSE
-cleaned_subway_data <- cleaned_subway_data %>%
-  mutate(Entry = ifelse(Entry == "YES", TRUE, FALSE))
-
-# Remove duplicates
-cleaned_subway_data <- cleaned_subway_data %>%
-  distinct()
+         Entry, Vending, `Entrance Type`, ADA) %>%
+  mutate(Entry = ifelse(Entry == "YES", TRUE, FALSE)) %>%  # Convert 'Entry' to logical values
+  distinct()  # Remove duplicates
 
 # Check the dimensions of the cleaned dataset
 dim(cleaned_subway_data)
+
 
 ```
 
 ## Q1: How many distinct stations are there (by station name and line)?
 
-```{r cars}
+```{r}
 num_distinct_stations <- cleaned_subway_data %>%
   distinct(Line, `Station Name`) %>%
   nrow()
 
+cat("Number of distinct stations:", num_distinct_stations, "\n")
+
 ```
 ## Q2: How many stations are ADA compliant?
-```{r cars}
+```{r }
 num_ada_compliant_stations <- cleaned_subway_data %>%
   filter(ADA == TRUE) %>%
   distinct(Line, `Station Name`) %>%
   nrow()
 
+cat("Number of ADA compliant stations:", num_ada_compliant_stations, "\n")
+
 ```
 ## Q3: What proportion of entrances/exits without vending allow entry?
-```{r cars}
+```{r }
 proportion_no_vending_allow_entry <- cleaned_subway_data %>%
   filter(Vending == "NO") %>%
   summarise(proportion = mean(Entry)) %>%
   pull(proportion)
 
+cat("Proportion of no-vending entrances that allow entry:", proportion_no_vending_allow_entry, "\n")
+
 ```
 
 
 ## Reformat data: combine all route columns into a single list
-```{r cars}
+```{r }
 
 cleaned_subway_data <- cleaned_subway_data %>%
   unite("Routes", Route1:Route5, sep = ",", na.rm = TRUE, remove = FALSE) %>%
@@ -94,20 +86,23 @@ cleaned_subway_data <- cleaned_subway_data %>%
 
 ```
 ## Q4 How many distinct stations serve the A train?
-```{r cars}
+```{r }
 num_a_train_stations <- cleaned_subway_data %>%
   filter(Routes == "A") %>%
   distinct(Line, `Station Name`) %>%
   nrow()
 
+cat("Number of stations serving the A train:", num_a_train_stations, "\n")
 ```
-# Q4: Of the stations that serve the A train, how many are ADA compliant?
+# Q5: Of the stations that serve the A train, how many are ADA compliant?
 
-```{r cars}
+```{r }
 num_ada_compliant_a_train_stations <- cleaned_subway_data %>%
   filter(Routes == "A", ADA == TRUE) %>%
   distinct(Line, `Station Name`) %>%
   nrow()
+
+cat("Number of ADA compliant stations serving the A train:", num_ada_compliant_a_train_stations, "\n")
 
 ```
 ## show results
@@ -120,6 +115,7 @@ cat("Proportion of no-vending entrances that allow entry:", proportion_no_vendin
 cat("Number of stations serving the A train:", num_a_train_stations, "\n")
 cat("Number of ADA compliant stations serving the A train:", num_ada_compliant_a_train_stations, "\n")
 ```
+In Problem 1, we successfully imported, cleaned, and analyzed the NYC Subway Entrance & Exit dataset. By filtering and transforming the data, we identified that there are a significant number of distinct subway stations across various lines. We also examined the accessibility of these stations and found the number of ADA-compliant stations. Additionally, we calculated the proportion of no-vending entrances that still allow entry, providing insights into the availability of entry options for passengers. 
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
@@ -129,7 +125,7 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 Import data of Mr trash wheel
 ```{r}
 mr_trash_wheel_df = 
-  read_excel("./202309 Trash Wheel Collection Data.xlsx",
+  read_excel("./202409 Trash Wheel Collection Data.xlsx",
              sheet = "Mr. Trash Wheel",
              range = "A2:N586",
              na = c("NA", "", ".")) |>
@@ -153,20 +149,15 @@ head(mr_trash_wheel_df, 5)
 
 ```{r}
 
-prof_trash_wheel_df = 
-  read_excel("./202309 Trash Wheel Collection Data.xlsx",
-             sheet = "Professor Trash Wheel",
-             range = "A2:M108",
-             na = c("NA", "", ".")) |>
-  janitor::clean_names() |>
-  filter(!is.na(dumpster)) |>
-  mutate(
-    trash_wheel = "prof_trash_wheel"
-  )
-
+prof_trash_wheel_df <- read_excel("./202409 Trash Wheel Collection Data.xlsx",
+                                  sheet = "Professor Trash Wheel",
+                                  range = "A2:M108",
+                                  na = c("NA", "", ".")) %>%
+  janitor::clean_names() %>%
+  filter(!is.na(dumpster)) %>%
+  mutate(trash_wheel = "prof_trash_wheel")
 
 head(prof_trash_wheel_df, 5)
-
 
 
 ```
@@ -177,17 +168,13 @@ head(prof_trash_wheel_df, 5)
 
 ```{r}
 
-
-gwynnda_trash_wheel_df = 
-  read_excel("./202309 Trash Wheel Collection Data.xlsx",
-             sheet = "Gwynnda Trash Wheel",
-             range = "A2:L157",
-             na = c("NA", "", ".")) |>
-  janitor::clean_names() |>
-  filter(!is.na(dumpster)) |>
-  mutate(
-    trash_wheel = "gwynnda_trash_wheel"
-  )
+gwynnda_trash_wheel_df <- read_excel("./202409 Trash Wheel Collection Data.xlsx",
+                                     sheet = "Gwynnda Trash Wheel",
+                                     range = "A2:L157",
+                                     na = c("NA", "", ".")) %>%
+  janitor::clean_names() %>%
+  filter(!is.na(dumpster)) %>%
+  mutate(trash_wheel = "gwynnda_trash_wheel")
 
 head(gwynnda_trash_wheel_df, 5)
 
@@ -197,9 +184,8 @@ head(gwynnda_trash_wheel_df, 5)
 
 ```{r}
 
-trash_wheel_tidy =
-  bind_rows(mr_trash_wheel_df, prof_trash_wheel_df, gwynnda_trash_wheel_df) |>
-  janitor::clean_names() |>
+trash_wheel_tidy <- bind_rows(mr_trash_wheel_df, prof_trash_wheel_df, gwynnda_trash_wheel_df) %>%
+  janitor::clean_names() %>%
   relocate(trash_wheel)
 
 
@@ -338,6 +324,8 @@ session_5
 ##conclusion
 
 The average viewership in Season 1 was r session_1 million, while the average viewership in Season 5 was r session_5 million. This indicates a significant increase in popularity over the seasons.
+
+
 
 
 
