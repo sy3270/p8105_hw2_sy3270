@@ -5,7 +5,7 @@ date: "2024-09-29"
 output: github_document
 ---
 
-
+## Initialization
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(readxl)
@@ -20,7 +20,7 @@ library(janitor)
 ## Problem 1
 Import subway E&T data and clean data
 
-list.files()
+
 
 ## Load and Clean Data
 
