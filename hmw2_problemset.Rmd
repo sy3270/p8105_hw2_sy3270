@@ -121,7 +121,7 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 
 ## Problem 2
 
-## /Users/mac/Downloads/202309 Trash Wheel Collection Data.xlsx
+
 Import data of Mr trash wheel
 ```{r}
 mr_trash_wheel_df = 
